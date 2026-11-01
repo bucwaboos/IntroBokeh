@@ -1,11 +1,44 @@
 import numpy as np
 #needed to create rows
 from bokeh.layouts import row
+#datareader will allow us to dl data files from other sources
+import yfinance as yf
+# older version import pandas_datareader as web
 #adding curdoc for current function use
 from bokeh.plotting import figure, show, curdoc
+#show our data source
+from bokeh.models import ColumnDataSource
 
-#changing the theme using curdoc
-curdoc().theme = "dark_minimal"
+#download stock ticker for apple from yahoo and load it into a dataframe
+df = yf.download(
+    "AAPL",
+    start="2020-01-01",
+    end="2026-10-01"
+    )
+
+df = df.reset_index()
+
+#Flatten MultiIdnex columns
+df.columns = [
+    '_'.join(col).strip('_')
+                        if isinstance(col, tuple)
+                        else ColumnDataSource
+                        for col in df.columns
+]
+#debug
+print(df.columns)
+
+source = ColumnDataSource(data=df)
+
+#feed this into a line figure to show us stock data
+p = figure(
+    x_axis_type="datetime",
+    title="Apple Stock Price"
+)
+p.line(x ="Date", y = "Close_AAPL", source=source)
+
+# #changing the theme using curdoc
+# curdoc().theme = "dark_minimal"
 
 # #generate values from 0-10 with a step size of 1
 # x = np.arange(0, 10, 1)
@@ -46,23 +79,24 @@ curdoc().theme = "dark_minimal"
 # glyph.fill_color = "red"
 
 
-#categories 0 to 6 with a step size of 0.1
-x = np.arange(0, 6, 0.1)
-#create values using math functions sin, cos, and tan
-y1 = np.sin(x)
-y2 = np.cos(x)
-y3 = np.tan(x)
+# #create graphs that are side by side but move independently
+# #categories 0 to 6 with a step size of 0.1
+# x = np.arange(0, 6, 0.1)
+# #create values using math functions sin, cos, and tan
+# y1 = np.sin(x)
+# y2 = np.cos(x)
+# y3 = np.tan(x)
 
-#figures to plot side by size
-p1 = figure()
-p1.line(x, y1)
-p2 = figure()
-p2.line(x, y2)
-p3 = figure()
-p3.line(x, y3)
+# #figures to plot side by size
+# p1 = figure()
+# p1.line(x, y1)
+# p2 = figure()
+# p2.line(x, y2)
+# p3 = figure()
+# p3.line(x, y3)
 
-#fit all the rows to the screen
-show(row(children=[p1,p2,p3], sizing_mode="scale_width"))
+# #fit all the rows to the screen
+# show(row(children=[p1,p2,p3], sizing_mode="scale_width"))
 
 
 # #chart bar plot
