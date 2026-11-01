@@ -7,35 +7,67 @@ import yfinance as yf
 #adding curdoc for current function use
 from bokeh.plotting import figure, show, curdoc
 #show our data source
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, Div, Spinner, TextInput
+from bokeh.layouts import layout
 
-#download stock ticker for apple from yahoo and load it into a dataframe
-df = yf.download(
-    "AAPL",
-    start="2020-01-01",
-    end="2026-10-01"
-    )
 
-df = df.reset_index()
+#interact with the graphs/change the behavior interactively
+#generate 50 random values for both axis
+x = np.random.random(50)
+y = np.random.random(50)
 
-#Flatten MultiIdnex columns
-df.columns = [
-    '_'.join(col).strip('_')
-                        if isinstance(col, tuple)
-                        else ColumnDataSource
-                        for col in df.columns
-]
-#debug
-print(df.columns)
+#the points were plotting are simple scatter plot of x and y
+p = figure()
+#save the object into these points
+points = p.scatter(x, y, size=10)
 
-source = ColumnDataSource(data=df)
+#use HTML elements for new div box
+div = Div(text="<p>Select Size</p>")
+#spinner will let us click and select numerical values titled Circle Size
+spinner = Spinner(title="Circle Size", low=0, high=20, step=1,
+                  #default value of spinner
+                  value=points.glyph.size, width=200)
+#link the value of the spinner to the value of the point size
+#from the glyph get the size
+spinner.js_link("value", points.glyph, "size")
 
-#feed this into a line figure to show us stock data
-p = figure(
-    x_axis_type="datetime",
-    title="Apple Stock Price"
-)
-p.line(x ="Date", y = "Close_AAPL", source=source)
+#get value and colors for text and link it to the pointsglyph
+textinput = TextInput(value=points.glyph.fill_color, width=200)
+#color of points will be displayed in the text, changing context will change the color of the points
+textinput.js_link("value", points.glyph, "fill_color")
+
+layout = layout([div, spinner], [textinput], [p])
+show(layout)
+
+
+
+# #download stock ticker for apple from yahoo and load it into a dataframe
+# df = yf.download(
+#     "AAPL",
+#     start="2020-01-01",
+#     end="2026-10-01"
+#     )
+
+# df = df.reset_index()
+
+# #Flatten MultiIdnex columns
+# df.columns = [
+#     '_'.join(col).strip('_')
+#                         if isinstance(col, tuple)
+#                         else ColumnDataSource
+#                         for col in df.columns
+# ]
+# #debug
+# print(df.columns)
+
+# source = ColumnDataSource(data=df)
+
+# #feed this into a line figure to show us stock data
+# p = figure(
+#     x_axis_type="datetime",
+#     title="Apple Stock Price"
+# )
+# p.line(x ="Date", y = "Close_AAPL", source=source)
 
 # #changing the theme using curdoc
 # curdoc().theme = "dark_minimal"
