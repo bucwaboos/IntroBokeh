@@ -1,5 +1,9 @@
 import numpy as np
-from bokeh.plotting import figure, show
+#adding curdoc for current function use
+from bokeh.plotting import figure, show, curdoc
+
+#changing the theme using curdoc
+curdoc().theme = "dark_minimal"
 
 # #generate values from 0-10 with a step size of 1
 # x = np.arange(0, 10, 1)
@@ -27,6 +31,10 @@ y = np.random.random(50) * 200
 #labeling x and y axis
 p = figure(title="Simple Scatter Plot",
            x_axis_label="x", y_axis_label="y")
+
+#changing the size of your graphed figure
+p.width = 1280
+p.height =720
 
 #scatter plot with values changed post, this is how you would connect values to widgets to make plots interactive
 circle = p.circle(x, y, legend_label="Random Points ", color="yellow", size=12)
